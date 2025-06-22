@@ -1,0 +1,22 @@
+org: laredojuan25
+service: api-diagrams
+
+provider:
+  name: aws
+  runtime: python3.12
+  memorySize: 1024
+  timeout: 30
+  iam:
+    role: arn:aws:iam::352677750379:role/LabRole
+
+functions:
+  crear_er:
+    handler: render_er.lambda_handler
+    events:
+      - http:
+          path: /diagrama/crear-er
+          method: post
+          cors: true
+          integration: lambda
+plugins:
+  - serverless-python-requirements
