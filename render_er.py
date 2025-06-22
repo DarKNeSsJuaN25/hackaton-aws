@@ -1,29 +1,36 @@
 import json
-import os
+import base64
+import pydot
 import tempfile
+import os
+
 from utils.diagram_utils import dsl_to_dot
 from validators import validate_dsl
 
 def lambda_handler(event, context):
     try:
-        dsl = event["body"]
-        validate_dsl(dsl)
-        dot = dsl_to_dot(dsl)
+        # Si estás usando API Gateway, el body viene como string
+        body = event.get("body", "")
+        if event.get("isBase64Encoded", False):
+            body = base64.b64decode(body).decode()
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "er_diagram")
-            dot.render(output_path, format="png", cleanup=True)
-            png_path = output_path + ".png"
+        # Validar y procesar el DSL
+        validate_dsl(body)
+        dot_graph = dsl_to_dot(body)  # Esta debe retornar el DOT string
+        graphs = pydot.graph_from_dot_data(dot_graph)
 
-            with open(png_path, "rb") as f:
-                image_data = f.read()
+        if not graphs:
+            raise Exception("DOT parsing failed")
+
+        png_data = graphs[0].create_png()
 
         return {
             "statusCode": 200,
             "headers": {"Content-Type": "image/png"},
-            "body": image_data.decode("latin1"),  # base64 is more robust (see note)
+            "body": base64.b64encode(png_data).decode("utf-8"),
             "isBase64Encoded": True
         }
+
     except ValueError as e:
         return {
             "statusCode": 400,
@@ -34,3 +41,4 @@ def lambda_handler(event, context):
             "statusCode": 500,
             "body": json.dumps({"error": "Error interno del servidor", "details": str(e)})
         }
+

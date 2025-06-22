@@ -67,7 +67,7 @@ def dsl_to_dot(dsl_text):
         right = right.strip().split(".")[0]
         dot.edge(left, right)
 
-    return dot
+    return dot.source
 
 def json_to_dot(data, dot=None, parent="root"):
     if dot is None:

@@ -8,8 +8,6 @@ provider:
   timeout: 30
   iam:
     role: arn:aws:iam::352677750379:role/LabRole
-  layers:
-    - arn:aws:lambda:us-east-1:764866452798:layer:graphviz:9
 
 functions:
   crear_er:
@@ -19,4 +17,4 @@ functions:
           path: /diagrama/crear-er
           method: post
           cors: true
-          integration: lambda
+
