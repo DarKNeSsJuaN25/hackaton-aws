@@ -4,7 +4,7 @@ import tempfile
 from utils.diagram_utils import dsl_to_dot
 from validators import validate_dsl
 
-def render_er(event, context):
+def lambda_handler(event, context):
     try:
         dsl = event["body"]
         validate_dsl(dsl)
